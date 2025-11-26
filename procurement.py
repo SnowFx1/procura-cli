@@ -71,19 +71,87 @@ def admin_pencatatan():
 
     console.print(table)
 
+#Fungsi admin_persetujuan() (ADMIN): proses menyetujui permintaan
+
+def admin_persetujuan():
+    console.print(Panel("[bold magenta]Persetujuan Permintaan Barang[/bold magenta]"))
+
+    if not permintaan_list:
+        console.print("[red]Belum ada permintaan barang.[/red]")
+        return
+
+    table = Table(show_header=True, header_style="bold magenta")
+    table.add_column("No")
+    table.add_column("Petugas")
+    table.add_column("Barang")
+    table.add_column("Jumlah")
+    table.add_column("Status")
+
+    for i, p in enumerate(permintaan_list):
+        table.add_row(
+            str(i + 1),
+            p["petugas"],
+            p["nama"],
+            str(p["jumlah"]),
+            p["status"]
+        )
+
+    console.print(table)
+
+    # Pilih nomor permintaan yang di proses
+    pilihan = Prompt.ask(
+        "Masukkan nomor permintaan yang ingin diproses (atau ketik 'batal')"
+    )
+
+    if pilihan.lower() == "batal":
+        return
+
+    if not pilihan.isdigit():
+        console.print("[red]Input tidak valid![/red]")
+        return
+
+    idx = int(pilihan) - 1
+
+    if idx < 0 or idx >= len(permintaan_list):
+        console.print("[red]Nomor tidak ditemukan.[/red]")
+        return
+
+    permintaan = permintaan_list[idx]
+
+    if permintaan["status"] != "Menunggu":
+        console.print("[yellow]Permintaan ini sudah diproses sebelumnya.[/yellow]")
+        return
+
+    aksi = Prompt.ask(
+        "Setujui atau Tolak?",
+        choices=["setujui", "tolak"]
+    )
+
+    if aksi == "setujui":
+        permintaan["status"] = "Disetujui"
+        console.print("[green]Permintaan berhasil disetujui.[/green]")
+
+    elif aksi == "tolak":
+        permintaan["status"] = "Ditolak"
+        console.print("[red]Permintaan berhasil ditolak.[/red]")
+
+
+
 def menu_admin():
     while True:
         console.print(Panel("[bold cyan]Menu Admin[/bold cyan]"))
         console.print("""
 1. Input Barang
 2. Lihat Daftar Barang
-3. Logout
+3. Persetujuan Permintaan
+4. Logout
 """)
-        pilihan = Prompt.ask("Pilih menu", choices=["1", "2", "3"])
+        pilihan = Prompt.ask("Pilih menu", choices=["1", "2", "3", "4"])
 
         if pilihan == "1": admin_input_barang()
         elif pilihan == "2": admin_pencatatan()
-        elif pilihan == "3": break
+        elif pilihan == "3": admin_persetujuan()
+        elif pilihan == "4": break
 
 # PETUGAS
 
