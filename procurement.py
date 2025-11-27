@@ -14,6 +14,8 @@ users = [
 
 barang_list = []
 permintaan_list = []
+harga_barang = []
+
 
 def banner():
     console.clear()
@@ -135,6 +137,50 @@ def admin_persetujuan():
         permintaan["status"] = "Ditolak"
         console.print("[red]Permintaan berhasil ditolak.[/red]")
 
+#Fungsi admin_laporan() (ADMIN): perhitungan total pengeluaran
+
+def admin_laporan():
+    console.print(Panel("[bold blue]Laporan Total Pengeluaran[/bold blue]"))
+
+    if not permintaan_list:
+        console.print("[red]Belum ada data permintaan.[/red]")
+        return
+
+    if not harga_barang:
+        console.print("[red]Harga barang belum diinput admin.[/red]")
+        return
+
+    table = Table(show_header=True, header_style="bold blue")
+    table.add_column("Barang")
+    table.add_column("Jumlah")
+    table.add_column("Harga Satuan")
+    table.add_column("Total Harga")
+    table.add_column("Status")
+
+    total_pengeluaran = 0
+
+    for p in permintaan_list:
+        harga = next((h["harga"] for h in harga_barang if h["nama"] == p["nama"]), 0)
+        total = harga * p["jumlah"]
+
+        if p["status"] == "Disetujui":
+            total_pengeluaran += total
+
+        table.add_row(
+            p["nama"],
+            str(p["jumlah"]),
+            f"Rp {harga}",
+            f"Rp {total}",
+            p["status"]
+        )
+
+    console.print(table)
+
+    console.print(Panel(
+        f"[green]Total Pengeluaran: Rp {total_pengeluaran}[/green]",
+        border_style="green"
+    ))
+
 
 
 def menu_admin():
@@ -144,14 +190,16 @@ def menu_admin():
 1. Input Barang
 2. Lihat Daftar Barang
 3. Persetujuan Permintaan
-4. Logout
+4. Total pengeluaran
+5. Logout
 """)
-        pilihan = Prompt.ask("Pilih menu", choices=["1", "2", "3", "4"])
+        pilihan = Prompt.ask("Pilih menu", choices=["1", "2", "3", "4", "5"])
 
         if pilihan == "1": admin_input_barang()
         elif pilihan == "2": admin_pencatatan()
         elif pilihan == "3": admin_persetujuan()
-        elif pilihan == "4": break
+        elif pilihan == "4": admin_laporan()
+        elif pilihan == "5": break
 
 # PETUGAS
 
